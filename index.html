@@ -91,7 +91,7 @@
     // ===== EmailJS config (ของเดย์) =====
     const EMAILJS_PUBLIC_KEY = "vQoiBKShUflegc3JG";
     const EMAILJS_SERVICE_ID = "service_wgigx4l";
-    const EMAILJS_TEMPLATE_ID = "reply_from_envelope";
+    const EMAILJS_TEMPLATE_ID = "template_epwxspk";
     emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
     // ===== UI helpers =====
@@ -125,7 +125,7 @@
     const answerEl = $('#answer');
     const senderEl = $('#sender');
     const replyEl = $('#reply');
-    const sendBtn = $('#sendBtn');
+    const sendBtn = $('#sendBtn'];
     const newQBtn = $('#newQ');
 
     function pickQuestion(){
@@ -160,14 +160,12 @@
       sendBtn.disabled = true; sendBtn.textContent = "กำลังส่ง...";
       try{
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          // ชุดฟิลด์หลัก
           question: q,
           answer: a,
           sender: s || "ไม่ระบุ",
           reply: r || "ไม่ระบุ",
           page_url: location.href,
           user_agent: navigator.userAgent,
-          // เผื่อเทมเพลตใช้ name/email/message
           name: s || "ไม่ระบุ",
           email: r || "",
           message: `คำถาม: ${q}\nคำตอบ: ${a}\n\nผู้ส่ง: ${s || "ไม่ระบุ"}\nอีเมลติดต่อกลับ: ${r || ""}\n\nPage: ${location.href}`
@@ -208,6 +206,7 @@
           p.vy += 9.8*dt*0.9;
           p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= dt*0.8;
           ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = `hsl(${Math.random()*360}, 90%, 60%)`;
           ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
           ctx.restore();
         });
