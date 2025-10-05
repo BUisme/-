@@ -72,13 +72,13 @@
       <textarea id="answer" placeholder="พิมพ์คำตอบของคุณที่นี่..."></textarea>
       <div class="row">
         <input class="input" id="sender" placeholder="ชื่อของคุณ (ไม่บังคับ)" />
-        <input class="input" id="reply" placeholder="อีเมลติดต่อกลับ (ถ้ามี)" type="email"/>
+        <input class="input" id="reply" placeholder="อีเมลติดต่อกลับหรือIGและFB (ถ้ามี)" type="email"/>
       </div>
       <div class="row">
-        <button class="btn" id="sendBtn">ส่งคำตอบให้เดย์</button>
+        <button class="btn" id="sendBtn">ส่งคำตอบให้ผู้สร้าง</button>
         <button class="btn alt" id="newQ">เปลี่ยนเป็นคำถามอื่น</button>
       </div>
-      <p class="muted">ข้อมูลจะถูกส่งผ่าน EmailJS ไปยังอีเมลของเดย์</p>
+      <p class="muted">ข้อมูลจะถูกส่งผ่าน EmailJS ไปยังอีเมลของผู้สร้าง</p>
     </div>
   </div>
 
@@ -177,7 +177,7 @@
       const a = answerEl.value.trim();
       const s = senderEl.value.trim();
       const r = replyEl.value.trim();
-      if(!a){ showToast("พิมพ์คำตอบก่อนน้า"); answerEl.focus(); return; }
+      if(!a){ showToast("พิมพ์คำตอบก่อนน้าาาาา"); answerEl.focus(); return; }
 
       sendBtn.disabled = true; sendBtn.textContent = "กำลังส่ง...";
       try{
