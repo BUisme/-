@@ -1,17 +1,262 @@
-<!DOCTYPE html>
-<!-- เดย์สามารถเอาไฟล์นี้ไปใส่ GitHub Pages ได้เลย -->
-<!-- ชื่อไฟล์: index.html -->
-<!-- เปิดใช้งานในเบราว์เซอร์หรืออัปโหลดขึ้น GitHub แล้วจะทำงานทันที -->
-
-<html lang="th">
+<!DOCTYPE html><html lang="th">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>QR Share Studio — ใส่ข้อความแล้วแปลงเป็น QR</title>
+  <meta name="description" content="ใส่ข้อความ/ลิงก์ แล้วกดสร้าง QR ดาวน์โหลด แบ่งปัน และสร้างลิงก์ที่พาไปหน้าเดียวกันพร้อมข้อความได้ทันที" />
+  <style>
+    :root{
+      --bg:#0b1020; --card:#111834; --ink:#e7eaf7; --muted:#9aa3c7; --brand:#6ea8fe; --accent:#9dffb0;
+      --danger:#ff6b6b; --ok:#2ecc71; --warn:#fbc02d; --border:#22305b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 900px at 10% 10%,#0f1a3d 0%,#0b1020 45%,#0b1020 100%);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans Thai",sans-serif;}
+    .wrap{max-width:920px;margin:24px auto;padding:16px}
+    .title{font-weight:800;font-size:clamp(20px,3.8vw,34px);letter-spacing:0.2px;margin:0 0 12px}
+    .sub{color:var(--muted);margin:0 0 18px;font-size:clamp(13px,2.2vw,15px)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:18px;padding:14px 14px}
+    .row{display:grid;gap:12px}
+    @media(min-width:860px){.row{grid-template-columns:1.2fr .8fr}}
+    textarea{width:100%;min-height:160px;background:#0f1430;color:var(--ink);border:1px solid var(--border);border-radius:14px;padding:12px 12px;resize:vertical;font-size:15px}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}
+    .control{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:#0f1430;font-size:13px;color:var(--muted)}
+    .control input[type="range"]{width:130px}
+    select, input[type="number"]{background:#0f1430;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:6px 8px}
+    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    button{border:1px solid var(--border);background:#17224b;color:var(--ink);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    button.primary{background:linear-gradient(180deg,#2846a6,#1c2d6f)}
+    button.ghost{background:transparent}
+    button.warning{background:#4b3d0f;border-color:#6b540f}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .out{display:grid;place-items:center;background:#0e1331;border:1px dashed var(--border);border-radius:16px;aspect-ratio:1/1;max-width:480px;width:100%;margin:auto}
+    .qrCanvas{image-rendering: pixelated;border-radius:12px}
+    .hint{color:var(--muted);font-size:12px;margin-top:6px;text-align:center}
+    .row2{display:grid;gap:12px;margin-top:12px}
+    @media(min-width:860px){.row2{grid-template-columns:1fr 1fr}}
+    a.link{color:var(--accent);word-break:break-all}
+    .footer{margin-top:18px;color:var(--muted);font-size:12px}
+    .badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
+  </style>
 </head>
 <body>
-  <h1>QR Share Studio</h1>
-  <p>เว็บสร้าง QR จากข้อความ พร้อมลิงก์ส่งต่ออัตโนมัติ</p>
-  <p>หากไฟล์นี้ทำงานได้ แปลว่าการติดตั้งสำเร็จ ✅</p>
-</body>
+  <div class="wrap">
+    <h1 class="title">QR Share Studio <span class="badge">เวอร์ชันไฟล์เดียว</span></h1>
+    <p class="sub">พิมพ์ <strong>ข้อความ / ลิงก์ / โค้ด</strong> แล้วกด <em>สร้าง QR</em> จากนั้นสามารถดาวน์โหลดรูป, คัดลอก, หรือแชร์ผ่านปุ่ม <em>Share</em>. นอกจากนี้ยังสร้าง <strong>ลิงก์ส่งต่อ</strong> ที่เปิดหน้านี้พร้อมข้อความเดิมอัตโนมัติได้ด้วย</p><div class="card row">
+  <div>
+    <label for="text"><strong>ข้อความที่จะทำเป็น QR</strong></label>
+    <textarea id="text" placeholder="พิมพ์อะไรก็ได้ เช่น https://example.com หรือ ข้อความธรรมดา"></textarea>
+
+    <div class="controls">
+      <span class="control">ขนาด: <input id="size" type="range" min="128" max="1024" step="32" value="384"><span id="sizeLabel">384</span> px</span>
+      <span class="control">ระยะขอบ: <input id="margin" type="range" min="0" max="16" step="1" value="2"><span id="marginLabel">2</span> px</span>
+      <span class="control">Error Corr.: 
+        <select id="ec">
+          <option value="L">L (เล็กสุด)</option>
+          <option value="M" selected>M</option>
+          <option value="Q">Q</option>
+          <option value="H">H (สูงสุด)</option>
+        </select>
+      </span>
+      <span class="control">ระดับความหนาแน่น: <input id="scale" type="number" min="1" max="20" step="1" value="8" title="สเกลพิกเซลต่อโมดูล"></span>
+    </div>
+
+    <div class="btns">
+      <button class="primary" id="gen">สร้าง QR</button>
+      <button id="dl" disabled>ดาวน์โหลด PNG</button>
+      <button id="copy" disabled>คัดลอกรูป</button>
+      <button id="share" disabled>Share</button>
+      <button class="ghost" id="clear">ล้าง</button>
+    </div>
+    <p class="hint">ทิป: ใช้ลิงก์แบบแนบข้อความได้ทันที เช่น <span id="deepLinkEx" class="link"></span></p>
+  </div>
+
+  <div>
+    <div class="out">
+      <canvas id="qr" class="qrCanvas" width="384" height="384" aria-label="พื้นที่แสดง QR"></canvas>
+    </div>
+    <div class="row2">
+      <div class="card">
+        <strong>ลิงก์ส่งต่อ (เปิดหน้านี้พร้อมข้อความเดิม)</strong>
+        <p class="hint">คัดลอกลิงก์นี้แล้วส่งให้เพื่อน—เมื่อเปิดลิงก์ หน้านี้จะเติมข้อความให้และวาด QR ให้อัตโนมัติ</p>
+        <a id="deepLink" class="link" href="#"></a>
+      </div>
+      <div class="card">
+        <strong>พรีวิวข้อความ</strong>
+        <p id="preview" style="white-space:pre-wrap;word-break:break-word;color:#c7d2ff"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">สร้างโดยเดสก์ท็อป/มือถือได้ทันที • ใช้ <code>canvas</code> ในตัว — ถ้าออนไลน์จะใช้ไลบรารีช่วยเข้ารหัสเพื่อความเร็ว
+  <br>หมายเหตุ: ถ้าออฟไลน์สคริปต์เสริมอาจโหลดไม่ได้ แต่รุ่นในตัวสามารถวาดได้อยู่ (โหมด fallback)
+</div>
+
+  </div>  <!-- โหลดไลบรารี QR แบบพึ่งพา CDN หลายแหล่ง พร้อมสำรอง -->
+  <script>
+    (function(){
+      const sources = [
+        'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
+        'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js'
+      ];
+      let loaded = false;
+      function loadNext(i){
+        if(i>=sources.length){
+          window.__QR_LIB_READY__ = false;
+          const f = document.querySelector('.footer');
+          if(f){ f.insertAdjacentHTML('beforeend', '<br><span style="color:#ff8a8a">ออฟไลน์หรือโหลดไลบรารีไม่สำเร็จ — ยังสร้าง QR ไม่ได้ (เชื่อมต่ออินเทอร์เน็ตแล้วกด "สร้าง QR" อีกครั้ง)</span>'); }
+          return;
+        }
+        const s = document.createElement('script');
+        s.src = sources[i];
+        s.async = true;
+        s.onload = ()=>{ loaded = true; window.__QR_LIB_READY__ = true; };
+        s.onerror = ()=>loadNext(i+1);
+        document.head.appendChild(s);
+      }
+      loadNext(0);
+    })();
+  </script>  <script>
+    const $ = (s, p=document) => p.querySelector(s);
+    const textEl = $('#text');
+    const sizeEl = $('#size');
+    const marginEl = $('#margin');
+    const scaleEl = $('#scale');
+    const ecEl = $('#ec');
+    const sizeLabel = $('#sizeLabel');
+    const marginLabel = $('#marginLabel');
+    const canvas = $('#qr');
+    const preview = $('#preview');
+    const link = $('#deepLink');
+    const genBtn = $('#gen');
+    const dlBtn = $('#dl');
+    const copyBtn = $('#copy');
+    const shareBtn = $('#share');
+    const clearBtn = $('#clear');
+    const deepLinkEx = $('#deepLinkEx');
+
+    function encodeParam(s){
+      return encodeURIComponent(s).replace(/%20/g,'+');
+    }
+    function decodeParam(s){
+      try{ return decodeURIComponent(s.replace(/\+/g,'%20')); }catch{ return s }
+    }
+    function deepLinkFor(t){
+      const url = new URL(window.location.href);
+      url.searchParams.set('t', t);
+      return url.toString();
+    }
+
+    function updateDeepLink(t){
+      const u = deepLinkFor(t);
+      link.textContent = u;
+      link.href = u;
+      deepLinkEx.textContent = u;
+    }
+
+    function render(){
+      const txt = textEl.value.trim();
+      preview.textContent = txt;
+      updateDeepLink(txt);
+      if(!txt){ dlBtn.disabled = copyBtn.disabled = shareBtn.disabled = true; return; }
+      const width = parseInt(sizeEl.value,10) || 384;
+      const margin = parseInt(marginEl.value,10) || 2;
+      const scale = parseInt(scaleEl.value,10) || 8;
+      const errorCorrectionLevel = ecEl.value || 'M';
+
+      if(!(window.QRCode && (window.QRCode.toCanvas || window.__QR_LIB_READY__))){
+        toast('ยังโหลดไลบรารีไม่เสร็จ/ออฟไลน์ — ต่อเน็ตแล้วลองอีกครั้ง');
+        dlBtn.disabled = copyBtn.disabled = shareBtn.disabled = true;
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.height = width;
+        ctx.fillStyle = '#0e1331'; ctx.fillRect(0,0,width,width);
+        ctx.fillStyle = '#ff8a8a';
+        ctx.font = 'bold 16px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans Thai, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('ต้องออนไลน์เพื่อสร้าง QR', width/2, width/2);
+        return;
+      }
+
+      QRCode.toCanvas(canvas, txt, { width, margin, scale, errorCorrectionLevel }, function(err){
+        if(err){ console.error(err); toast('เกิดข้อผิดพลาดตอนสร้าง QR'); return; }
+        dlBtn.disabled = copyBtn.disabled = false;
+        shareBtn.disabled = !(navigator.share);
+      });
+    }
+      const width = parseInt(sizeEl.value,10) || 384;
+      const margin = parseInt(marginEl.value,10) || 2;
+      const scale = parseInt(scaleEl.value,10) || 8;
+      const errorCorrectionLevel = ecEl.value || 'M';
+
+      // prefer CDN library if available (standard-compliant)
+      if(window.QRCode && window.__QR_LIB_READY__){
+        QRCode.toCanvas(canvas, txt, { width, margin, scale, errorCorrectionLevel }, function(err){
+          if(err){ console.error(err); return; }
+          dlBtn.disabled = copyBtn.disabled = false;
+          shareBtn.disabled = !(navigator.share);
+        });
+      } else if(window.QRCode){ // fallback wrapper
+        QRCode.toCanvas(canvas, txt, { width, margin, scale, errorCorrectionLevel }, function(){
+          dlBtn.disabled = copyBtn.disabled = false;
+          shareBtn.disabled = !(navigator.share);
+        });
+      }
+    }
+
+    function download(){
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'qr.png';
+      a.click();
+    }
+
+    async function copyImg(){
+      try{
+        canvas.toBlob(async (blob)=>{
+          if(!blob) return;
+          const item = new ClipboardItem({ 'image/png': blob });
+          await navigator.clipboard.write([item]);
+          toast('คัดลอกภาพแล้ว ✅');
+        }, 'image/png');
+      }catch(e){ toast('อุปกรณ์นี้ไม่รองรับการคัดลอกรูป'); }
+    }
+
+    async function share(){
+      const txt = textEl.value.trim();
+      const file = await new Promise(res=> canvas.toBlob(b=>res(b),'image/png'));
+      const files = file ? [ new File([file], 'qr.png', { type:'image/png' }) ] : [];
+      const data = { title:'QR จากข้อความ', text:txt, url: link.href };
+      if(files.length) data.files = files;
+      try{ await navigator.share(data); }catch(e){ /* user cancelled */ }
+    }
+
+    function toast(m){
+      const el = document.createElement('div');
+      el.textContent = m;
+      el.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:#16234d;color:#e7eaf7;border:1px solid #263b78;padding:10px 14px;border-radius:12px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.35);';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),1800);
+    }
+
+    sizeEl.addEventListener('input',()=>{ sizeLabel.textContent = sizeEl.value; });
+    marginEl.addEventListener('input',()=>{ marginLabel.textContent = marginEl.value; });
+
+    genBtn.addEventListener('click', render);
+    dlBtn.addEventListener('click', download);
+    copyBtn.addEventListener('click', copyImg);
+    shareBtn.addEventListener('click', share);
+    clearBtn.addEventListener('click', ()=>{ textEl.value=''; render(); });
+
+    // Deep-link boot
+    (function initFromURL(){
+      const u = new URL(window.location.href);
+      const t = u.searchParams.get('t');
+      if(t){ textEl.value = decodeParam(t); }
+      sizeLabel.textContent = sizeEl.value; marginLabel.textContent = marginEl.value;
+      render();
+    })();
+  </script></body>
 </html>
