@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>✉️ ซองจดหมายคำถาม – ส่งได้ทันที (ไม่ต้องยืนยัน)</title>
+  <meta name="description" content="สุ่มคำถามตามหมวด ตอบ แล้วส่งหาผู้สร้างผ่าน EmailJS — ไม่มีเช็คบ็อกซ์ยืนยัน" />
+  <meta name="theme-color" content="#f59e0b">
+  <style>
+    :root{--bg:#0f172a;--panel:#1e293b;--ink:#e2e8f0;--muted:#94a3b8;--accent:#f59e0b;--accent2:#fbbf24}
+    *{box-sizing:border-box}
+    body{font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Kantumruy Pro, Noto Sans Thai, sans-serif;background:var(--bg);color:var(--ink);display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}
+    .container{max-width:880px;width:100%;background:var(--panel);padding:20px;border-radius:18px;box-shadow:0 0 24px rgba(0,0,0,.4)}
+    h1{text-align:center;margin:4px 0 12px}
+    p.lead{text-align:center;margin:0 0 16px;color:var(--muted)}
+    label{display:block;margin:8px 0 6px;color:#e5e7eb}
+    select,input,textarea,button{font-family:inherit;font-size:1rem}
+    select,input,textarea{width:100%;padding:12px 14px;border:1px solid #334155;border-radius:12px;background:#0b1020;color:#e2e8f0}
+    textarea{min-height:120px;resize:vertical}
+    .btn{appearance:none;border:0;padding:12px 18px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#111827;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .grid{display:grid;gap:12px}
+    .cols-2{grid-template-columns:repeat(2,1fr)}
+    .hidden{display:none}
+    .links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+    .contact-link{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#0b1020;border:1px solid #334155;color:#e2e8f0;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✉️ ซองจดหมายคำถาม</h1>
+    <p class="lead">เลือกหมวด → สุ่มคำถาม → ตอบ → กดส่งได้เลย (ไม่มีเช็คยืนยัน)</p>
+
+    <label>หมวดคำถาม</label>
+    <div class="grid cols-2">
+      <select id="category" aria-label="หมวดคำถาม">
+        <option value="study">เกี่ยวกับการเรียน</option>
+        <option value="work">เกี่ยวกับการทำงาน</option>
+        <option value="life">เกี่ยวกับปัญหาชีวิต</option>
+        <option value="creator">อยากฝากอะไรถึงผู้สร้างมั้ย</option>
+      </select>
+      <button class="btn" id="getQ">เปิดซองคำถาม</button>
+    </div>
+
+    <div id="questionBox" class="hidden" style="margin-top:14px">
+      <h2 id="question" style="margin:10px 0 6px"></h2>
+
+      <label>คำตอบของคำถาม</label>
+      <textarea id="answer" placeholder="พิมพ์คำตอบของคุณ"></textarea>
+
+      <div class="grid cols-2" style="margin-top:10px">
+        <input id="nickname" placeholder="ชื่อเล่น" />
+        <input id="age" placeholder="อายุ" inputmode="numeric" />
+      </div>
+      <div class="grid cols-2">
+        <select id="gender">
+          <option value="">เพศ</option>
+          <option value="ชาย">ชาย</option>
+          <option value="หญิง">หญิง</option>
+          <option value="ไม่ระบุ">ไม่ระบุ</option>
+        </select>
+        <input id="ig" placeholder="Instagram (ลิงก์โปรไฟล์หรือชื่อ)" aria-label="Instagram" />
+      </div>
+      <input id="gmail" placeholder="Gmail (อีเมล)" aria-label="Gmail" />
+
+      <button class="btn" id="send" style="margin-top:12px">ส่งคำตอบให้ผู้สร้าง</button>
+      <p style="color:#94a3b8;font-size:.92rem">ข้อมูลถูกส่งผ่าน EmailJS • ไม่มีการเก็บบนเซิร์ฟเวอร์ของเว็บนี้</p>
+    </div>
+
+    <hr style="margin:18px 0;border-color:#334155">
+    <div>
+      <strong>ลิงก์ติดต่อผู้สร้าง</strong>
+      <div class="links">
+        <a class="contact-link" href="https://www.instagram.com/watt_day_2007_04_19" target="_blank" rel="noopener" title="Instagram">
+          IG: watt_day_2007_04_19
+        </a>
+        <a class="contact-link" href="mailto:day19092005@gmail.com" title="Gmail">
+          Gmail: day19092005@gmail.com
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // ธนาคารคำถาม (หั่นให้กระชับ — ไม่มีข้อความกำลังใจเก่าที่เคยโผล่เอง)
+    const qBank = {
+      study: [
+        "วันนี้วิชาไหนยากสุด เพราะอะไร?","การบ้าน/โปรเจกต์คืบหน้าแค่ไหนแล้ว?","หัวข้อไหนที่อยากให้มีตัวอย่างเพิ่ม?",
+        "วิธีอ่านหนังสือไหนเวิร์กสุดสำหรับคุณ?","บทไหนยังงง ๆ อยากให้ช่วยอธิบาย?","ตั้งเป้าคะแนนวิชาไหนไว้เท่าไหร่?",
+        "วันนี้ทบทวนไปกี่นาทีแล้ว?","อยากบาลานซ์เรียน/พักยังไง?","ถ้าติว 1 เรื่องตอนนี้ จะเลือกเรื่องอะไร?","เทคนิคจำสูตรที่ใช้บ่อยคืออะไร?",
+        "คาบไหนทำให้มีไฟที่สุด เพราะอะไร?","วันนี้ทำแบบฝึกหัดอะไรบ้าง ผลเป็นยังไง?","อยากวางแผนงานกลุ่มใหม่ตรงไหน?","อยากให้ครู/เพื่อนช่วยเรื่องไหน?",
+        "คะแนนครั้งก่อนเป็นยังไง และจะปรับยังไง?","อยากลองวิธีจดโน้ตแบบไหน?","อยากพูดให้กำลังใจตัวเองว่าอะไร?","วันนี้ได้เรียนรู้อะไรใหม่ ๆ บ้าง?","อะไรเล็ก ๆ ช่วยให้เรียนลื่นขึ้น?","พรุ่งนี้จะเริ่มบทไหนก่อน เพราะอะไร?"
+      ],
+      work: [
+        "งานวันนี้เป็นยังไงบ้าง เจออะไรท้าทาย?","ภารกิจเร่งด่วนสุดคืออะไร?","ถ้าขอความช่วยเหลือได้ 1 อย่าง จะขออะไร?","งานไหนภูมิใจสุดในสัปดาห์นี้?",
+        "อยากอัปสกิลด้านไหนให้ทำงานดีขึ้น?","การสื่อสารในทีมโอเคไหม อยากปรับอะไร?","งานค้างไหนอยากเคลียร์ก่อน?","3 งานสำคัญสุดตอนนี้คืออะไร?",
+        "วันนี้มีอะไรเล็ก ๆ ช่วยให้งานเดินต่อได้?","อุปสรรคหลักคืออะไร จะแก้ยังไง?","อยากให้หัวหน้า/ทีมช่วยตรงไหน?","วันนี้เรียนรู้อะไรใหม่จากงาน?",
+        "ถ้าเพิ่มเวลาให้งานส่วนเดียว จะเลือกส่วนไหน?","สมดุลงาน-พักโอเคไหม ต้องเติมอะไร?","ฟีดแบ็กล่าสุดคืออะไร รู้สึกยังไง?","งานไหนอยากรีแฟกเตอร์/ทำใหม่?",
+        "อะไรทำให้งานวันนี้น่าเบื่อน้อยลง?","อยากลองใช้เครื่องมือใหม่อะไร?","พรุ่งนี้วางแผนยังไง?","อยากฉลองความสำเร็จเล็ก ๆ อะไร?"
+      ],
+      life: [
+        "พลังใจตอนนี้กี่คะแนน (0-10) เพราะอะไร?","วันนี้มีเรื่องเล็ก ๆ อะไรทำให้ยิ้มได้?","ถ้าพัก 1 ชั่วโมง อยากทำอะไรที่สุด?","อยากระบายอะไรโดยไม่ต้องขอคำแนะนำไหม?",
+        "ช่วงนี้นอนพอไหม อยากปรับอะไร?","วันนี้อยากขอบคุณใคร/อะไร?","ความกังวลที่วนบ่อยสุดช่วงนี้คืออะไร?","กิจกรรมไหนช่วยให้ใจนิ่งเร็วสุด?",
+        "ถ้าปล่อยวาง 1 เรื่องตอนนี้ จะเป็นเรื่องอะไร?","วันนี้ภูมิใจในตัวเองเรื่องไหน?","วันนี้ดูแลร่างกายตอนไหนได้ดีสุด?","อยากฝากข้อความถึงตัวเองในอนาคตว่าอะไร?",
+        "เพลง/คอนเทนต์ไหนฮีลใจช่วงนี้?","ตอนนี้อยากคุยกับใครที่สุด ทำไม?","อยากให้ใครช่วยเรื่องอะไร?","วันนี้เครียดระดับไหน และแก้ยังไงแล้ว?",
+        "อยากลองกิจกรรมผ่อนคลายอะไรใหม่ ๆ ไหม?","นิสัยเล็ก ๆ ที่อยากเริ่มฝึกวันนี้คืออะไร?","ถ้าให้กำลังใจเพื่อนสั้น ๆ จะว่าอะไร?","คืนนี้อยากปิดวันด้วยอะไร?"
+      ],
+      creator: [
+        "อยากฝากอะไรถึงผู้สร้างเว็บไซต์นี้บ้าง?","ส่วนไหนควรปรับปรุงการใช้งาน?","ฟีเจอร์ไหนชอบที่สุด เพราะอะไร?","อยากเห็นฟีเจอร์อะไรเพิ่ม?",
+        "โทนสี/ตัวอักษรโอเคไหม?","ขั้นตอนส่งคำตอบเข้าใจง่ายไหม?","ส่วนไหนอยากให้โหลดเร็วขึ้น?","เจอบั๊กอะไรบ้าง เล่าให้ผู้สร้างฟังหน่อย",
+        "อยากให้เว็บช่วยเรื่องอะไรอีก?","บนมือถือโอเคไหม ควรปรับตรงไหน?","ปุ่ม/ไอคอนชัดพอไหม?","ข้อความในฟอร์มควรสั้น/ยาวแค่ไหนดี?",
+        "ให้คะแนนเว็บนี้ (0-10) เท่าไหร่?","อยากบอกอะไรกับผู้สร้างในฐานะผู้ใช้งาน?","มีเว็บตัวอย่างที่ชอบไหม อยากให้ผู้สร้างดู?","อยากมีโหมดแสง/ธีมเพิ่มไหม?",
+        "การเข้าถึง (accessibility) ควรเพิ่มอะไร?","อยากให้ผู้สร้างโฟกัสพัฒนาส่วนไหนก่อน?","ควรแบ่งหมวดคำถามยังไงให้ง่ายขึ้น?","อยากชวนผู้สร้างทำโปรเจคร่วมกันเรื่องอะไร?"
+      ]
+    };
+
+    // เปิดซองคำถาม
+    const cate = document.getElementById('category');
+    const getQ = document.getElementById('getQ');
+    const qBox = document.getElementById('questionBox');
+    const qEl = document.getElementById('question');
+    getQ.onclick = () => {
+      const list = qBank[cate.value];
+      const q = list[Math.floor(Math.random() * list.length)];
+      qEl.textContent = q;
+      qBox.classList.remove('hidden');
+    };
+
+    // EmailJS
+    emailjs.init({ publicKey: 'vQoiBKShUflegc3JG' }); // ปรับได้ตามคีย์ของเดย์
+    const SERVICE_ID = 'service_wgigx4l';
+    const TEMPLATE_ID = 'template_epwxspk';
+
+    // ส่งคำตอบ (ไม่มีเช็คยืนยันแล้ว)
+    const sendBtn = document.getElementById('send');
+    sendBtn.onclick = async () => {
+      const payload = {
+        category: cate.options[cate.selectedIndex].text,
+        question: qEl.textContent.trim(),
+        answer: (document.getElementById('answer').value || '').trim(),
+        nickname: (document.getElementById('nickname').value || '').trim(),
+        age: (document.getElementById('age').value || '').trim(),
+        gender: (document.getElementById('gender').value || '').trim() || 'ไม่ระบุ',
+        contact_ig: (document.getElementById('ig').value || '').trim(),
+        contact_gmail: (document.getElementById('gmail').value || '').trim(),
+        email: /.+@.+\..+/.test((document.getElementById('gmail').value || '').trim()) ? (document.getElementById('gmail').value || '').trim() : '',
+        page_url: location.href,
+        user_agent: navigator.userAgent
+      };
+      if(!payload.answer){
+        alert('กรุณากรอกคำตอบก่อนส่ง');
+        return;
+      }
+      sendBtn.disabled = true; const prev = sendBtn.textContent; sendBtn.textContent = 'กำลังส่ง...';
+      try {
+        await emailjs.send(SERVICE_ID, TEMPLATE_ID, payload);
+        alert('ส่งคำตอบแล้ว ขอบคุณมาก!');
+        document.getElementById('answer').value='';
+      } catch(e) {
+        alert('ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
+      } finally {
+        sendBtn.disabled = false; sendBtn.textContent = prev;
+      }
+    };
+  </script>
+</body>
+</html>
