@@ -1,114 +1,317 @@
 <!doctype html>
+
 <html lang="th">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ซองจดหมายคำถาม ✉️</title>
-  <meta name="description" content="กดซองเพื่อรับคำถามเล็ก ๆ แล้วพิมพ์ตอบกลับ ส่งเข้าอีเมลโดยอัตโนมัติ (EmailJS)" />
+  <title>✉️ ซองจดหมายคำถาม – เลือกหมวดได้</title>
+  <meta name="description" content="เปิดซองสุ่มคำถามตามหมวด ตอบ แล้วส่งเข้าอีเมลผ่าน EmailJS พร้อมบันทึกคำตอบและช่องติดต่อแบบไอคอน + สุ่มคำถาม 20 ข้อต่อหมวด" />
   <meta name="theme-color" content="#f59e0b">
   <style>
-    :root{
-      --bg1:#0f172a; --bg2:#1e293b; --accent:#f59e0b; --accent2:#f97316;
-      --paper:#fffaf0; --ink:#0b1324;
-    }
+    :root{--bg:#0f172a;--panel:#1e293b;--paper:#0b1020;--text:#e2e8f0;--muted:#94a3b8;--accent:#f59e0b;--accent2:#fbbf24}
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Kantumruy Pro, Noto Sans Thai, sans-serif;
-      color:#e2e8f0; background: radial-gradient(1000px 600px at 20% 10%, #1b2845 0%, var(--bg1) 40%),
-                       radial-gradient(800px 600px at 80% 90%, #1f2937 0%, var(--bg2) 40%),
-                       linear-gradient(180deg, var(--bg1), var(--bg2));
-      display:grid; place-items:center; padding:24px;
-    }
-    .wrap{max-width:900px; width:100%; display:flex; flex-direction:column; gap:18px; align-items:center}
-    h1{font-weight:700; margin:0; text-align:center; font-size:1rem; opacity:.85}
-    p.lead{opacity:.9; margin:0; text-align:center; font-size:.9rem}
-    .stage{width:min(420px, 90vw); height:min(300px, 64vw); position:relative; perspective:1000px; user-select:none}
-    .envelope{position:absolute; inset:0; transform-style:preserve-3d; cursor:pointer}
-    .env-body{position:absolute; inset:0; background:linear-gradient(180deg, #ffe8c2, #ffd79a); border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 0 0 2px rgba(0,0,0,.08)}
-    .flap{position:absolute; left:0; right:0; top:0; height:55%; transform-origin:50% 0%; background:linear-gradient(180deg, #ffedd5, #fdba74); clip-path:polygon(0 0, 100% 0, 50% 100%); border-top-left-radius:18px; border-top-right-radius:18px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.06)}
-    .seal{position:absolute; top:47%; left:50%; transform:translate(-50%, -50%); width:64px; height:64px; background:radial-gradient(circle at 30% 30%, #fff, #ffe4b5 50%, #eab308 80%); border-radius:999px; box-shadow:0 4px 12px rgba(0,0,0,.25), inset 0 0 0 2px rgba(0,0,0,.15)}
-    .seal:after{content:"✳︎"; position:absolute; inset:0; display:grid; place-items:center; color:#1f2937; font-size:28px; opacity:.8}
-    .paper{position:absolute; left:5%; right:5%; top:20%; bottom:10%; background:var(--paper); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.25); transform:translateZ(1px); display:grid; place-items:center; padding:20px; overflow:hidden}
-    .paper > div{color:var(--ink); text-align:center; padding:8px 10px; font-weight:700; letter-spacing:.2px}
-    .envelope:not(.open){animation:floaty 3.5s ease-in-out infinite}
-    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-    .envelope.open .flap{animation: openFlap .9s cubic-bezier(.2,.7,.2,1) forwards}
-    @keyframes openFlap{0%{transform:rotateX(0deg)} 60%{transform:rotateX(-165deg)} 100%{transform:rotateX(-160deg)}}
-    .envelope.open .seal{opacity:0; transform:translate(-50%,-50%) scale(0.6); transition:all .3s ease-out}
-    .envelope.open .paper{animation: slideUp 1s .35s ease-out forwards}
-    @keyframes slideUp{from{transform:translateZ(2px) translateY(0)} to{transform:translateZ(40px) translateY(-46%)} }
-    .card{background:var(--paper); color:var(--ink); border-radius:14px; padding:18px; box-shadow:0 12px 30px rgba(0,0,0,.35); width:min(640px, 92vw)}
-    .q{font-size:1.15rem; line-height:1.6; font-weight:800; margin:0 0 12px}
-    textarea{width:100%; min-height:120px; padding:12px; border-radius:10px; border:1px solid #cbd5e1; font-size:1rem; resize:vertical}
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    .input{flex:1; min-width:180px; padding:10px 12px; border-radius:10px; border:1px solid #cbd5e1; font-size:1rem}
-    .btn{appearance:none; border:0; padding:12px 16px; border-radius:999px; background:linear-gradient(90deg, var(--accent), var(--accent2)); color:#0b1020; font-weight:800; letter-spacing:.2px; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.25)}
-    .btn.alt{background:#0b1020; color:#e2e8f0; border:1px solid rgba(255,255,255,.12)}
-    .muted{opacity:.8; font-size:.9rem}
+    body{font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Kantumruy Pro, Noto Sans Thai, sans-serif;background:var(--bg);color:var(--text);display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}
+    h1{text-align:center;margin:4px 0 12px}
+    p.lead{text-align:center;margin:0 0 16px;color:var(--muted)}
+    .container{max-width:880px;width:100%;background:var(--panel);padding:20px;border-radius:18px;box-shadow:0 0 24px rgba(0,0,0,.4)}
+    label{display:block;margin:8px 0 6px;color:#e5e7eb}
+    select,input,textarea,button{font-family:inherit;font-size:1rem}
+    select,input,textarea{width:100%;padding:12px 14px;border:1px solid #334155;border-radius:12px;background:#0b1020;color:#e2e8f0}
+    textarea{min-height:120px;resize:vertical}
+    .btn{appearance:none;border:0;padding:12px 18px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#111827;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .btn.secondary{background:#0b1020;color:#e2e8f0;border:1px solid #334155}
+    .grid{display:grid;gap:12px}
+    .cols-2{grid-template-columns:repeat(2,1fr)}
+    .cols-3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:820px){.cols-2,.cols-3{grid-template-columns:1fr}}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .hidden{display:none}
-    #confetti{position:fixed; inset:0; pointer-events:none}
-    .toast{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#0b1020; color:#e2e8f0; border:1px solid rgba(255,255,255,.12); padding:10px 14px; border-radius:999px; opacity:0; pointer-events:none}
-    .toast.show{opacity:1}
+    .muted{color:var(--muted);font-size:.92rem}
+    .links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+    .contact-link{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#0b1020;border:1px solid #334155;color:#e2e8f0;text-decoration:none}
+    .field-icon{position:relative}
+    .field-icon input{padding-left:46px}
+    .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:22px;height:22px;opacity:.9}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px dashed #334155;background:#0b1020;color:#e5e7eb;font-size:.9rem}
+    .qwrap{display:flex;align-items:flex-start;gap:10px}
+    .qwrap svg{flex:0 0 28px}
+    .qtext{margin:0}
   </style>
 </head>
 <body>
-  <canvas id="confetti"></canvas>
-  <div class="wrap">
+  <div class="container">
     <h1>✉️ ซองจดหมายคำถาม</h1>
-    <p class="lead">กดซองเพื่อรับคำถาม แล้วพิมพ์ตอบกลับได้เลย</p>
+    <p class="lead">เลือกหมวด → เปิดซองสุ่มคำถาม → พิมพ์คำตอบ → ส่งเข้าอีเมล</p><label>หมวดคำถาม</label>
+<div class="row">
+  <select id="category" aria-label="หมวดคำถาม">
+    <option value="study">เกี่ยวกับการเรียน</option>
+    <option value="work">เกี่ยวกับการทำงาน</option>
+    <option value="life">เกี่ยวกับปัญหาชีวิต</option>
+    <option value="creator">อยากฝากอะไรถึงผู้สร้างมั้ย</option>
+  </select>
+  <button class="btn secondary" id="getQ">เปิดซองคำถาม</button>
+</div>
 
-    <div class="stage" aria-label="ซองจดหมายคำถาม">
-      <div class="envelope" id="envelope" role="button" tabindex="0" aria-pressed="false">
-        <div class="env-body"></div>
-        <div class="flap"></div>
-        <div class="paper" aria-hidden="true"><div>คลิกเพื่อเปิด ✨</div></div>
-        <div class="seal" title="เปิดซอง"></div>
-      </div>
+<div id="questionBox" class="hidden" style="margin-top:14px">
+  <div class="pill" id="cateLabel">หมวด: -</div>
+  <div class="qwrap" style="margin:10px 0 6px">
+    <span id="qIcon" aria-hidden="true"></span>
+    <h2 id="question" class="qtext"></h2>
+  </div>
+
+  <label>คำตอบของคำถาม</label>
+  <textarea id="answer" placeholder="พิมพ์คำตอบของคุณ"></textarea>
+
+  <div class="grid cols-3" style="margin-top:10px">
+    <input id="nickname" placeholder="ชื่อเล่น" />
+    <input id="age" placeholder="อายุ" inputmode="numeric" />
+    <select id="gender">
+      <option value="">เพศ</option>
+      <option value="ชาย">ชาย</option>
+      <option value="หญิง">หญิง</option>
+      <option value="ไม่ระบุ">ไม่ระบุ</option>
+    </select>
+  </div>
+
+  <!-- ช่องติดต่อเป็นไอคอน -->
+  <label style="margin-top:10px">ช่องทางติดต่อ</label>
+  <div class="grid cols-3">
+    <div class="field-icon">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.092 10.125 24v-8.438H7.078V12.07h3.047V9.412c0-3.007 1.792-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.492 0-1.953.928-1.953 1.88v2.26h3.328l-.532 3.492h-2.796V24C19.612 23.092 24 18.1 24 12.073z"/></svg>
+      <input id="fb" placeholder="Facebook (ลิงก์โปรไฟล์หรือชื่อ)" aria-label="Facebook" />
     </div>
-
-    <div class="card hidden" id="formCard">
-      <div class="q" id="question">…</div>
-      <textarea id="answer" placeholder="พิมพ์คำตอบของคุณที่นี่..."></textarea>
-      <div class="row">
-        <input class="input" id="sender" placeholder="ชื่อของคุณ (ไม่บังคับ)" />
-        <input class="input" id="reply" placeholder="อีเมลติดต่อกลับหรือIGและFB (ถ้ามี)" type="email"/>
-      </div>
-      <div class="row">
-        <button class="btn" id="sendBtn">ส่งคำตอบให้ผู้สร้าง</button>
-        <button class="btn alt" id="newQ">เปลี่ยนเป็นคำถามอื่น</button>
-      </div>
-      <p class="muted">ข้อมูลจะถูกส่งผ่าน EmailJS ไปยังอีเมลของผู้สร้าง</p>
+    <div class="field-icon">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#E1306C" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.2 2.4.4.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.3 1.2.4 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.9-.4 2.4-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.2.3-2.4.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.2-2.4-.4-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.3-1.2-.4-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.9.4-2.4.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.2-.3 2.4-.4C8.4 2.2 8.8 2.2 12 2.2m0-2.2C8.7 0 8.3 0 7 0 5.7.1 4.9.2 4.2.4 3.4.7 2.8 1.1 2.2 1.8 1.5 2.4 1.1 3 0 3.8.2 4.6.1 5.4 0 6.2 0 7.5 0 7.9 0 12s0 4.5.1 5.8c.1.8.2 1.6.4 2.4.3.8.7 1.4 1.4 2.1.6.6 1.3 1.1 2.1 1.4.8.2 1.6.3 2.4.4 1.3.1 1.7.1 5 .1s3.7 0 5-.1c.8-.1 1.6-.2 2.4-.4.8-.3 1.4-.7 2.1-1.4.6-.6 1.1-1.3 1.4-2.1.2-.8.3-1.6.4-2.4.1-1.3.1-1.7.1-5s0-3.7-.1-5c-.1-.8-.2-1.6-.4-2.4-.3-.8-.7-1.4-1.4-2.1C21.2.7 20.6.3 19.8 0 19 .2 18.2.1 17.4 0 16.1 0 15.7 0 12 0z"/><path fill="#E1306C" d="M12 5.8A6.2 6.2 0 1 0 12 18.2 6.2 6.2 0 1 0 12 5.8zM19.2 4.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 1 0 0-2.8z"/></svg>
+      <input id="ig" placeholder="Instagram (ลิงก์โปรไฟล์หรือชื่อ)" aria-label="Instagram" />
+    </div>
+    <div class="field-icon">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 12.713 0 6.75V18a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V6.75l-12 5.963z"/><path fill="#34A853" d="M24 6a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2l12 6.75L24 6z"/></svg>
+      <input id="gmail" placeholder="Gmail (อีเมล)" aria-label="Gmail" />
     </div>
   </div>
 
-  <div class="toast" id="toast">ส่งแล้ว ขอบคุณมากนะ 💛</div>
+  <label class="row" style="margin-top:10px"><input type="checkbox" id="consent"> <span class="muted">ฉันยินยอมให้ส่งข้อมูลนี้ไปยังผู้สร้าง</span></label>
+  <div class="row"><button class="btn" id="send">ส่งคำตอบให้ผู้สร้าง</button></div>
+  <p class="muted">ข้อมูลถูกส่งผ่าน EmailJS • มีบันทึกร่างอัตโนมัติในเครื่องของคุณเท่านั้น</p>
+</div>
 
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<hr style="margin:18px 0;border-color:#334155">
+<div>
+  <strong>ลิงก์ติดต่อผู้สร้าง</strong>
+  <div class="links">
+    <a class="contact-link" href="https://www.instagram.com/watt_day_2007_04_19" target="_blank" rel="noopener" title="Instagram">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#E1306C" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.2 2.4.4.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.3 1.2.4 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.9-.4 2.4-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.2.3-2.4.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.2-2.4-.4-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.3-1.2-.4-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.9.4-2.4.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.2-.3 2.4-.4C8.4 2.2 8.8 2.2 12 2.2z"/></svg>
+      IG: watt_day_2007_04_19
+    </a>
+    <a class="contact-link" href="https://www.facebook.com/profile.php?id=100079053018157" target="_blank" rel="noopener" title="Facebook">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.092 10.125 24v-8.438H7.078V12.07h3.047V9.412c0-3.007 1.792-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.492 0-1.953.928-1.953 1.88v2.26h3.328l-.532 3.492h-2.796V24C19.612 23.092 24 18.1 24 12.073z"/></svg>
+      FB: Wattana Myday Kraipetch
+    </a>
+    <a class="contact-link" href="mailto:day19092005@gmail.com" title="Gmail">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 12.713 0 6.75V18a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V6.75l-12 5.963z"/><path fill="#34A853" d="M24 6a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2l12 6.75L24 6z"/></svg>
+      Gmail: day19092005@gmail.com
+    </a>
+  </div>
+</div>
 
-  <script>
-    // ===== EmailJS config (ของเดย์) =====
-    const EMAILJS_PUBLIC_KEY = "vQoiBKShUflegc3JG";
-    const EMAILJS_SERVICE_ID = "service_wgigx4l";
-    const EMAILJS_TEMPLATE_ID = "template_epwxspk";
-    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  </div>  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>  <script>
+    // ===== SVG ไอคอนสำหรับแต่ละหมวด =====
+    const ICONS={
+      study:`<svg width="28" height="28" viewBox="0 0 24 24"><path fill="#fbbf24" d="M12 3L1 9l11 6l9-4.91V17h2V9L12 3z"/><path fill="#fde68a" d="M11 12.08L3.19 8.09L2 8.73l9 4.91l9-4.91l-1.19-.64L13 12.08V19h-2z"/></svg>`,
+      work:`<svg width="28" height="28" viewBox="0 0 24 24"><path fill="#93c5fd" d="M10 4h4a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v3h-9v2h9v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4h7v-2H3V9a2 2 0 0 1 2-2h3V6a2 2 0 0 1 2-2z"/></svg>`,
+      life:`<svg width="28" height="28" viewBox="0 0 24 24"><path fill="#fda4af" d="M12 21s-6.716-4.35-9.193-7.253C.49 11.14 1.102 7.6 3.757 6.2C5.78 5.13 8.06 5.74 9.5 7.3c1.44-1.56 3.72-2.17 5.743-1.1c2.655 1.4 3.267 4.94.95 7.547C18.716 16.65 12 21 12 21z"/></svg>`,
+      creator:`<svg width="28" height="28" viewBox="0 0 24 24"><path fill="#c4b5fd" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21z"/></svg>`
+    };
 
-    // ===== UI helpers =====
-    const $ = (s)=>document.querySelector(s);
-    const toast = $('#toast');
-    function showToast(msg){
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(()=> toast.classList.remove('show'), 1800);
+    // ===== ธนาคารคำถาม 20 ข้อต่อหมวด =====
+    const qBank={
+      study:[
+        "วันนี้วิชาไหนยากสุด เพราะอะไร?",
+        "การบ้าน/โปรเจกต์คืบหน้าแค่ไหนแล้ว?",
+        "หัวข้อไหนที่อยากให้มีตัวอย่างเพิ่ม?",
+        "เวลาอ่านหนังสือ ใช้วิธีไหนแล้วเวิร์กที่สุด?",
+        "มีบทไหนที่ยังงง ๆ อยากให้ช่วยอธิบาย?",
+        "ตั้งเป้าคะแนนวิชาไหนไว้เท่าไหร่?",
+        "วันนี้ทบทวนไปกี่นาที/ชั่วโมงแล้ว?",
+        "อยากแบ่งเวลายังไงให้เรียน/พักบาลานซ์ขึ้น?",
+        "ถ้าเลือกติว 1 เรื่องตอนนี้ จะเลือกเรื่องอะไร?",
+        "มีเทคนิคจำสูตรที่อยากแชร์ไหม?",
+        "คาบไหนทำให้รู้สึกมีไฟมากที่สุด เพราะอะไร?",
+        "วันนี้ได้ลองทำแบบฝึกหัดอะไรบ้าง ผลเป็นยังไง?",
+        "มีงานกลุ่มไหนที่อยากวางแผนใหม่?",
+        "อยากให้เพื่อน/ครูช่วยตรงไหนมากที่สุดตอนนี้?",
+        "คะแนนครั้งก่อนเป็นยังไง และอยากแก้เกมยังไง?",
+        "อยากลองวิธีจดโน้ตแบบใหม่ไหม แบบไหน?",
+        "ถ้าให้ให้กำลังใจตัวเองเรื่องเรียน จะพูดว่าอะไร?",
+        "วันนี้เรียนรู้อะไรใหม่ ๆ ที่คาดไม่ถึงบ้าง?",
+        "สิ่งเล็ก ๆ ที่ทำแล้วเรียนลื่นขึ้นคืออะไร?",
+        "พรุ่งนี้อยากเริ่มจากบทไหนก่อน เพราะอะไร?"
+      ],
+      work:[
+        "งานวันนี้เป็นยังไงบ้าง เจออะไรท้าทาย?",
+        "ภารกิจเร่งด่วนสุดตอนนี้คืออะไร?",
+        "ถ้าขอความช่วยเหลือเรื่องงานได้ 1 อย่าง จะขออะไร?",
+        "งานไหนที่ภูมิใจสุดในสัปดาห์นี้?",
+        "อยากอัปสกิลด้านไหนเพื่อให้งานเร็ว/ดีขึ้น?",
+        "การสื่อสารในทีมช่วงนี้โอเคไหม อยากปรับอะไร?",
+        "มีงานที่ค้างมานาน อยากเคลียร์ชิ้นไหนก่อน?",
+        "ถ้าจัดลำดับ 3 งานสำคัญสุด จะเรียงยังไง?",
+        "วันนี้มีสิ่งเล็ก ๆ ที่ทำให้งานเดินต่อได้คืออะไร?",
+        "อุปสรรคหลักของงานตอนนี้คืออะไร จะแก้ยังไง?",
+        "อยากให้หัวหน้า/ทีมช่วยตรงไหนมากที่สุด?",
+        "วันนี้ได้เรียนรู้อะไรใหม่จากงาน?",
+        "ถ้าให้เวลากับงานส่วนเดียวเพิ่ม จะเลือกส่วนไหน?",
+        "ตอนนี้สมดุลงาน-พักโอเคไหม ต้องเติมอะไร?",
+        "ฟีดแบ็กล่าสุดที่ได้รับคืออะไร และรู้สึกยังไง?",
+        "งานไหนที่อยากรีแฟกเตอร์/ทำใหม่ให้เนียนขึ้น?",
+        "สิ่งที่ทำให้งานวันนี้น่าเบื่อน้อยลงคืออะไร?",
+        "มีเครื่องมือ/วิธีใหม่ที่อยากลองใช้กับงานไหม?",
+        "วางแผนพรุ่งนี้ไว้ยังไงคร่าว ๆ?",
+        "อยากฉลองความสำเร็จเล็ก ๆ เรื่องไหนในงานวันนี้?"
+      ],
+      life:[
+        "ตอนนี้พลังใจให้ตัวเองกี่คะแนน (0-10) เพราะอะไร?",
+        "วันนี้มีเรื่องเล็ก ๆ อะไรทำให้ยิ้มได้?",
+        "ถ้าได้พัก 1 ชั่วโมง อยากทำอะไรที่สุด?",
+        "มีอะไรที่อยากระบายโดยไม่ต้องขอคำแนะนำไหม?",
+        "ช่วงนี้นอนพอไหม อยากปรับอะไรให้หลับดีขึ้น?",
+        "คน/สิ่งที่อยากขอบคุณในวันนี้คืออะไร?",
+        "มีความกังวลไหนวนในหัวบ่อยสุดช่วงนี้?",
+        "กิจกรรมไหนช่วยให้ใจนิ่งเร็วที่สุดสำหรับคุณ?",
+        "ถ้าเลือกปล่อยวาง 1 เรื่องตอนนี้ จะเป็นเรื่องอะไร?",
+        "สิ่งไหนที่ทำแล้วรู้สึกภูมิใจในตัวเองวันนี้?",
+        "วันนี้ดูแลร่างกายตอนไหนได้ดีสุด?",
+        "อยากบอกอะไรกับตัวเองในอนาคตสั้น ๆ?",
+        "มีเพลง/คอนเทนต์ไหนฮีลใจช่วงนี้บ้าง?",
+        "ใครคือคนที่อยากคุยด้วยมากที่สุดตอนนี้ ทำไม?",
+        "ถ้าได้ขอความช่วยเหลือ จะอยากให้ช่วยเรื่องอะไร?",
+        "วันนี้เครียดระดับไหน และช่วยตัวเองยังไงแล้ว?",
+        "อยากลองกิจกรรมผ่อนคลายอะไรใหม่ ๆ ไหม?",
+        "นิสัยเล็ก ๆ ที่อยากเริ่มฝึกวันนี้คืออะไร?",
+        "ถ้าจะให้กำลังใจเพื่อนแบบสั้น ๆ จะพูดว่าอะไร?",
+        "คืนนี้อยากปิดวันด้วยสิ่งไหนมากที่สุด?"
+      ],
+      creator:[
+        "อยากฝากอะไรถึงผู้สร้างเว็บไซต์นี้บ้าง?",
+        "มีคำแนะนำการใช้งานส่วนไหนที่ควรปรับปรุงไหม?",
+        "ฟีเจอร์ไหนชอบที่สุด และเพราะอะไร?",
+        "อยากเห็นฟีเจอร์อะไรเพิ่มในอนาคต?",
+        "โทนสี/ตัวอักษรอ่านง่ายพอไหม อยากเปลี่ยนอะไร?",
+        "ขั้นตอนส่งคำตอบเข้าใจง่ายไหม มีจุดไหนงงบ้าง?",
+        "อยากให้หน้าเว็บโหลดเร็วขึ้นส่วนไหน?",
+        "มีบั๊กที่เจอไหม เล่าให้ผู้สร้างฟังหน่อย",
+        "อยากให้เว็บนี้ช่วยคุณเรื่องอะไรได้อีก?",
+        "ประสบการณ์บนมือถือโอเคไหม อยากปรับตรงไหน?",
+        "ปุ่ม/ไอคอนชัดพอไหม ควรจัดวางใหม่ตรงไหน?",
+        "ข้อความในฟอร์มควรสั้น/ยาวแค่ไหนดี?",
+        "ถ้าให้ให้คะแนนเว็บนี้ (0-10) จะให้เท่าไหร่?",
+        "อยากบอกอะไรกับผู้สร้างในฐานะผู้ใช้งาน?",
+        "มีตัวอย่างเว็บที่ชอบ อยากให้ผู้สร้างดูไหม?",
+        "อยากให้มีธีม/โหมดแสงเพิ่มเติมแบบไหน?",
+        "การเข้าถึง (accessibility) อยากให้เพิ่มอะไร?",
+        "อยากให้ผู้สร้างวางแผนพัฒนาส่วนไหนก่อน?",
+        "รูปแบบคำถามควรแบ่งยังไงให้เลือกง่ายขึ้น?",
+        "อยากชวนผู้สร้างทำโปรเจคร่วมกันเรื่องอะไร?"
+      ]
+    };
+
+    // บังคับไม่ให้มีคำว่า "เดย์" ในหมวดฝากถึงผู้สร้าง (เผื่อมีในอนาคต)
+    qBank.creator = qBank.creator.map(q=> q.replaceAll('เดย์','ผู้สร้าง'));
+
+    // ===== องค์ประกอบ =====
+    const cate=document.getElementById('category');
+    const getQ=document.getElementById('getQ');
+    const qBox=document.getElementById('questionBox');
+    const qEl=document.getElementById('question');
+    const qIcon=document.getElementById('qIcon');
+    const cateLabel=document.getElementById('cateLabel');
+
+    const answerEl=document.getElementById('answer');
+    const nicknameEl=document.getElementById('nickname');
+    const ageEl=document.getElementById('age');
+    const genderEl=document.getElementById('gender');
+    const fbEl=document.getElementById('fb');
+    const igEl=document.getElementById('ig');
+    const gmailEl=document.getElementById('gmail');
+    const consentEl=document.getElementById('consent');
+    const sendBtn=document.getElementById('send');
+
+    // เปิดซองและสุ่มคำถาม พร้อมฝัง SVG ไอคอนตามหมวด
+    getQ.onclick=()=>{
+      const list=qBank[cate.value];
+      const q=list[Math.floor(Math.random()*list.length)];
+      qEl.textContent=q;
+      cateLabel.textContent='หมวด: '+(
+        cate.value==='study'?'เกี่ยวกับการเรียน':
+        cate.value==='work'?'เกี่ยวกับการทำงาน':
+        cate.value==='life'?'เกี่ยวกับปัญหาชีวิต':'ฝากถึงผู้สร้าง');
+      qIcon.innerHTML=ICONS[cate.value]||'';
+      qBox.classList.remove('hidden');
+      saveDraft();
     }
 
-    // ===== Question bank (สุ่ม) =====
-    const RAW_QUESTIONS = [
-      "กินข้าวบ้างหรือยัง",
-      "นอนพักผ่อนเพียงพอมั้ย",
-      "ช่วงนี้เป็นยังไงบ้าง",
-      "มีเรื่องอะไรที่อยากจะระบายมันออกมามั้ย",
+    // บันทึกร่างแบบอัตโนมัติ
+    const DRAFT_KEY='envelope_draft_icons_v2';
+    function saveDraft(){
+      const data={q:qEl.textContent, cate:cate.value, a:answerEl.value, nk:nicknameEl.value, ag:ageEl.value, gd:genderEl.value, fb:fbEl.value, ig:igEl.value, gm:gmailEl.value};
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    }
+    function restoreDraft(){
+      try{
+        const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+        if(!d) return;
+        if(d.cate) cate.value=d.cate;
+        if(d.q){ qEl.textContent=d.q; qBox.classList.remove('hidden'); qIcon.innerHTML=ICONS[cate.value]||''; }
+        if(d.a) answerEl.value=d.a;
+        if(d.nk) nicknameEl.value=d.nk;
+        if(d.ag) ageEl.value=d.ag;
+        if(d.gd) genderEl.value=d.gd;
+        if(d.fb) fbEl.value=d.fb;
+        if(d.ig) igEl.value=d.ig;
+        if(d.gm) gmailEl.value=d.gm;
+        if(d.cate){
+          cateLabel.textContent='หมวด: '+(
+            d.cate==='study'?'เกี่ยวกับการเรียน':
+            d.cate==='work'?'เกี่ยวกับการทำงาน':
+            d.cate==='life'?'เกี่ยวกับปัญหาชีวิต':'ฝากถึงผู้สร้าง');
+        }
+      }catch{}
+    }
+    [answerEl,nicknameEl,ageEl,genderEl,fbEl,igEl,gmailEl,cate].forEach(el=> el.addEventListener('input', saveDraft));
+    restoreDraft();
+
+    // EmailJS
+    emailjs.init({publicKey:'vQoiBKShUflegc3JG'});
+    sendBtn.onclick=async()=>{
+      const payload={
+        category: cateLabel.textContent.replace('หมวด: ','')||'-',
+        question: qEl.textContent.trim(),
+        answer: (answerEl.value||'').trim(),
+        nickname: (nicknameEl.value||'').trim(),
+        age: (ageEl.value||'').trim(),
+        gender: (genderEl.value||'').trim()||'ไม่ระบุ',
+        contact_fb: (fbEl.value||'').trim(),
+        contact_ig: (igEl.value||'').trim(),
+        contact_gmail: (gmailEl.value||'').trim(),
+        email: /.+@.+\..+/.test(gmailEl.value||'') ? (gmailEl.value||'').trim() : '',
+        page_url: location.href,
+        user_agent: navigator.userAgent
+      };
+      if(!payload.answer){ alert('กรุณากรอกคำตอบ'); return; }
+      if(!consentEl.checked){ alert('กรุณายินยอมก่อนส่งข้อมูล'); return; }
+      sendBtn.disabled=true; const prev=sendBtn.textContent; sendBtn.textContent='กำลังส่ง...';
+      try{
+        await emailjs.send('service_wgigx4l','template_epwxspk', payload);
+        alert('ส่งคำตอบแล้ว ขอบคุณมาก!');
+        answerEl.value=''; saveDraft();
+      }catch(e){
+        alert('ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
+      }finally{
+        sendBtn.disabled=false; sendBtn.textContent=prev;
+      }
+    }
+  </script></body>
+</html>      "มีเรื่องอะไรที่อยากจะระบายมันออกมามั้ย",
       "พักผ่อนให้เยอะๆ อย่าเครียด",
       "อย่าไปคิดเยอะ อย่าไปเครียด",
       "มีคนคิดถึงคุณอยู่ตลอดเวลานะรู้มั้ย",
